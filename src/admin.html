@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Consent Directives</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="css/vendor.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <ul class="nav nav-pills pull-right">
+        <li>
+          <a href="index.html">Home</a>
+        </li>
+        <li>
+          <a href="external.html">S2S Query</a>
+        </li>
+        <li class="active">
+          <a href="admin.html">Admin</a>
+        </li>
+      </ul>
+      <h3 class="text-muted">Admin Access</h3>
+    </div>
+    <div id="adminDiv" style="display:none">
+      <div id="categoriesManagementDiv">
+        <h4>Add New Category</h4>
+        <div id="permissionsDiv">
+          <div id="permissionsHeaderDiv" class="row">
+            <div id="permissionsIncludeDiv" class="col-lg-1">
+              <b>Include</b>
+            </div>
+            <div id="permissionsNameDiv" class="col-lg-3">
+              <b>Permission</b>
+            </div>
+            <div id="permissionsFlagsDiv" class="col-lg-4">
+              <b>Bit Flag</b>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="input-group">
+              <input type="text" class="form-control" id="categoryNameInput" placeholder="Category name...">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button" onclick="AddCategoryFromUi()">Add</button>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div id="noCategoriesDiv" style="display:none">
+          <h4>No Categories Found</h4>
+        </div>
+        <div id="categoriesDiv" style="display:none">
+          <h4>Existing Categories (Semantics Catalog)</h4>
+          <div id="categoriesDisplayHeaderDiv" class="row">
+            <div id="categoriesDisplayNameDiv" class="col-lg-4">
+              <b>Name</b>
+            </div>
+            <div id="categoriesDisplayPermissionsDiv" class="col-lg-6">
+              <b>Permissions</b>
+            </div>
+          </div>
+          <div id="categoriesDisplayContentDiv"></div>
+        </div>
+      </div>
+    </div>
+    <div id="nonAdminDiv" style="display:none">
+      <div class="alert alert-danger" role="alert">Access denied -- You are not the system administrator</div>
+    </div>
+    <div class="footer">
+      <p>
+        <b>
+          <span id="accountName">Unkown</span>
+        </b>@
+        <span id="accountAddress">0x000000...</span>
+      </p>
+    </div>
+    <script src="js/vendor.js"></script>
+    <script src="js/plugins.js"></script>
+    <script src="js/app.js"></script>
+    <script>Init();
+      InitAdmin();</script>
+  </div>
+</body>
+
+</html>

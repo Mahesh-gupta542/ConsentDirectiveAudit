@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Consent Directives</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="css/vendor.css">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <ul class="nav nav-pills pull-right">
+        <li>
+          <a href="index.html">Home</a>
+        </li>
+        <li class="active">
+          <a href="external.html">S2S Query</a>
+        </li>
+        <li>
+          <a href="admin.html">Admin</a>
+        </li>
+      </ul>
+      <h3 class="text-muted">System-to-system Query</h3>
+    </div>
+    <div class="Content">
+      <div class="row">
+        <div class="col-lg-1">
+          <h4>Does</h4>
+        </div>
+        <div class="col-lg-2">
+          <div class="btn-group" role="group" aria-label="...">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span id="actorNameDDL">Actor 1</span>
+                <span class="caret"></span>
+              </button>
+              <ul id="actorsDdm" class="dropdown-menu">
+                <li id="actorTemplateDdi" style="display:none">
+                  <a href="#"></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-1">
+          <h4>give</h4>
+        </div>
+        <div class="col-lg-2">
+          <div class="btn-group" role="group" aria-label="...">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span id="actorNameDDL2">Actor 2</span>
+                <span class="caret"></span>
+              </button>
+              <ul id="actorsDdm2" class="dropdown-menu">
+                <li id="actorTemplateDdi2" style="display:none">
+                  <a href="#"></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-2">
+          <h4>consent to</h4>
+        </div>
+        <div class="col-lg-1">
+          <div class="btn-group" role="group" aria-label="...">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span id="actorNameDDL3">...</span>
+                <span class="caret"></span>
+              </button>
+              <ul id="actorsDdm3" class="dropdown-menu">
+                <li id="actorTemplateDdi3" style="display:none">
+                  <a href="#"></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-1">
+          <h4>?</h4>
+        </div>
+      </div>
+      <br>
+      <h4>Q: Does
+        <i>
+          <span id="actor1Span">Actor 1</span>
+        </i>give
+        <i>
+          <span id="actor2Span">Actor 2</span>
+        </i>consent to
+        <i>
+          <span id="actionSpan">...</span>
+        </i>?</h4>
+      <h4>A:
+        <span id="answerSpan">N/A</span>
+      </h4>DOes a Consent Directive exist show that the Patient that gives Is there a directive that says that the Patient gives
+      the Receptionist consent?</div>
+    <div class="footer">
+      <p>
+        <b>
+          <span id="accountName">Unkown</span>
+        </b> @
+        <span id="accountAddress">0x000000...</span>
+      </p>
+    </div>
+  </div>
+  <script src="js/vendor.js"></script>
+  <script src="js/plugins.js"></script>
+  <script src="js/app.js"></script>
+  <script>Init();
+    InitExternal();</script>
+</body>
+
+</html>

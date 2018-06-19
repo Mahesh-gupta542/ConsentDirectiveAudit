@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consent Directives</title>
+
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+
+  <!-- build:css styles/main.css -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <!-- endbuild -->
+
+</head>
+ 
+<body>
+  <div class="container">
+
+    <div class="header">
+      <ul class="nav nav-pills pull-right">
+        <li class="active">
+          <a href="index.html">Home</a>
+        </li>
+        <li>
+          <a href="external.html">S2S Query</a>
+        </li>
+        <li>
+          <a href="admin.html">Admin</a>
+        </li>
+      </ul>
+      <h3 class="text-muted" id="appName">Patient App</h3>
+    </div>
+
+    <div class="patientContent" style="display:none;">
+    <div class="row">
+      <div class="col-lg-4">
+        <h4>
+          <span id="patientHeading"></span>
+        </h4>
+      </div>
+      <div class="col-lg-6" id = "actionButton">
+        <div class="btn-group">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Action
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li id="createButton" class="disabled">
+              <a href="#" onclick="CreatePatient();">Become a Patient</a>
+            </li>
+            <li id="destroyButton" class="disabled">
+              <a href="#" onclick="DestroyPatient();">Relinquish Patient Status</a>
+            </li>
+            <li id="delegateButton" class="disabled">
+              <a href="#" onclick="DestroyPatient();">Delegate on Behalf of P</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div id="manageConsentDirectivesDiv" style="display:none">
+
+      <div class="row">
+        <div class="col-lg-4">
+          <h4>Consent Directives</h4>
+        </div>
+        <div class="col-lg-6">
+          <div class="btn-group" role="group" aria-label="...">
+            <div class="btn-group" role="group">  
+              <button type="button" class="btn btn-default" OnClick="SaveConsentDirective();">Save</button>
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span id="actorNameDDL"></span>
+                <span class="caret"></span>
+              </button>
+              <ul id="actorsDdm" class="dropdown-menu">
+                <li id="actorTemplateDdi" style="display:none">
+                  <a href="#"></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="permissionsDiv">
+        <div id="permissionsHeaderDiv" class="row">
+          <div id="permissionsIncludeDiv" class="col-lg-1">
+            <b>Include</b>
+          </div>
+          <div id="permissionsNameDiv" class="col-lg-3">
+            <b>Permission</b>
+          </div>
+          <div id="permissionsFlagsDiv" class="col-lg-4">
+            <b>Bit Flag</b>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    </div>
+
+    <div class="physicianContent"  style="display:none;">
+      View profile for the patients:
+      <div id="patientsDiv">
+        <div id="patientsHeaderDiv" class="row">
+          <div id="patientsSelectDiv" class="col-lg-1">
+          </div>
+          <div id="patientAccountDiv" class="col-lg-3">
+          </div>
+        </div>
+      </div>
+      <button id="viewButton" type="button" class="btn btn-default" OnClick="ViewProfile();" style="float: right;">View</button>
+    </div>
+
+    <div class="auditorContent" style="display:none;">
+      View access logs for Patients profile:
+      <div id="patientsLogDiv">
+        <div id="patientsLogHeaderDiv" class="row">
+          <div id="patientsLogSelectDiv" class="col-lg-1">
+          </div>
+          <div id="patientLogAccountDiv" class="col-lg-3">
+          </div>
+        </div>
+      </div>
+      <input type="text" id="datepicker">
+      <button id="viewButton" type="button" class="btn btn-default" OnClick="ViewAccessLogs();" style="float: right;">View Access Logs</button>
+    </div>
+
+
+
+
+    <div class="footer">
+      <p>
+        <b>
+          <span id="accountName">Unkown</span>
+        </b> @
+        <span id="accountAddress">0x000000...</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- build:js scripts/vendor.js -->
+  <!-- bower:js -->
+  <script src="js/jquery.js"></script>
+  <!-- endbower -->
+  <!-- endbuild -->
+
+  <!-- build:js scripts/plugins.js -->
+  <script src="js/bootstrap/affix.js"></script>
+  <script src="js/bootstrap/alert.js"></script>
+  <script src="js/bootstrap/dropdown.js"></script>
+  <script src="js/bootstrap/tooltip.js"></script>
+  <script src="js/bootstrap/modal.js"></script>
+  <script src="js/bootstrap/transition.js"></script>
+  <script src="js/bootstrap/button.js"></script>
+  <script src="js/bootstrap/popover.js"></script>
+  <script src="js/bootstrap/carousel.js"></script>
+  <script src="js/bootstrap/scrollspy.js"></script>
+  <script src="js/bootstrap/collapse.js"></script>
+  <script src="js/bootstrap/tab.js"></script>
+  <!-- endbuild -->
+
+  <!--script src="/bower_components/web3/dist/web3.min.js"></script-->
+
+  <!-- build:js scripts/main.js -->
+  <script src="js/app.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <!-- endbuild -->
+
+  <script>
+    Init();
+    //InitPatient();
+  </script>
+
+</body>
+
+</html>
