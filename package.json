@@ -1,12 +1,11 @@
 {
   "name": "consentdirectivesaudit",
   "version": "1.0.0",
-  "description": "",
   "main": "./src/js/app.js",
   "directories": {
     "test": "test"
   },
-  "author": "",
+  "author": "Mahesh",
   "license": "ISC",
   "eslintConfig": {
     "env": {
@@ -30,10 +29,25 @@
   },
   "dependencies": {
     "eslint": "^4.19.1",
-    "lite-server": "^2.3.0"
+    "lite-server": "^2.3.0",
+    "truffle": "^4.1.11"
   },
   "scripts": {
     "dev": "lite-server",
     "test": "echo \"Error: no test specified\" && exit 1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mahesh-gupta542/ConsentDirectiveAudit.git"
+  },
+  "keywords": [
+    "DApp",
+    "consent",
+    "privacy"
+  ],
+  "bugs": {
+    "url": "https://github.com/Mahesh-gupta542/ConsentDirectiveAudit/issues"
+  },
+  "homepage": "https://github.com/Mahesh-gupta542/ConsentDirectiveAudit#readme",
+  "description": ""
 }

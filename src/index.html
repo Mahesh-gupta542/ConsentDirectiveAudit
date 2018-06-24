@@ -52,7 +52,7 @@
           </button>
           <ul class="dropdown-menu">
             <li id="createButton" class="disabled">
-              <a href="#" onclick="CreatePatient();">Become a Patient</a>
+              <a href="#" onclick="ShowForm();">Become a Patient</a>
             </li>
             <li id="destroyButton" class="disabled">
               <a href="#" onclick="DestroyPatient();">Relinquish Patient Status</a>
@@ -65,7 +65,28 @@
       </div>
     </div>
 
+    <div id="getPatientDeails" style="display:none">
 
+      <div class="row">
+        <div class="col-lg-1">
+          <h4>Name</h4>
+        </div>
+        <div class="col-lg-3">
+          <input type="text" name="PatientName" placeholder="Enter Your Name">
+        </div>
+      </div>
+      <div class="row">
+          <div class="col-lg-1">
+            <h4>MCP Number</h4>
+          </div>
+          <div class="col-lg-3">
+            <input type="text" name="mcpNo" placeholder="Enter Your MCP Number">
+          </div>
+          <div class="col-lg-4">
+            <button type="button" class="btn btn-default" OnClick="CreatePatient();">Save</button>
+          </div>
+        </div>
+    </div>
 
     <div id="manageConsentDirectivesDiv" style="display:none">
 
@@ -124,6 +145,7 @@
 
     <div class="auditorContent" style="display:none;">
       View access logs for Patients profile:
+      Search by 
       <div id="patientsLogDiv">
         <div id="patientsLogHeaderDiv" class="row">
           <div id="patientsLogSelectDiv" class="col-lg-1">

@@ -59,12 +59,12 @@ function Init() {
     // Hardcoded account addresses (PoC)
     window.Accounts = {
         'accounts': [
-            { 'address': '0x7b050c1414ede542a7b6e73f2e350d2d7540c63a', 'name': 'Admin' },
+            { 'address': '0x004862247223e9784fec421a0c6a3c2e28b0782a', 'name': 'Admin' },
             { 'address': null, 'name': 'P (Patient)' },
-            { 'address': '0xc04238654e6ba40153133b6f105b8f8c1c3f84d2', 'name': 'R (Reception, MD)' },
-            { 'address': '0xc635cc97f34c6b5dd400a280fae1cc6df5e3e0ba', 'name': 'MD' },
-            { 'address': '0x2aab3a88d0b4347605d94e1b800f2ae73c374bbf', 'name': 'N (Nurse)' },
-            { 'address': '0xf864480c3b5ae8ce56a5e17559a2444fae0a1ace', 'name': 'Auditor' }
+            { 'address': '0x5c879555a7ed30062d01ff55e6f598a27624287d', 'name': 'R (Reception, MD)' },
+            { 'address': '0xac08c39735d583ea3e893821b79fc1c88d61e4e8', 'name': 'MD' },
+            { 'address': '0x4a45d3081cf0ecd45b23aee009be3576c46b29ef', 'name': 'N (Nurse)' },
+            { 'address': '0x79304e3605e578f83c22d9054702391aa0e6fa2c', 'name': 'Auditor' }
         ]
     };
 
@@ -163,8 +163,6 @@ function InitPatient() {
                 Accounts.accounts.find(function (accnt) { return accnt.name == 'P (Patient)'}).address = web3.eth.accounts[0];
                 $(document).attr('title', GetAccountName() + ' Actor');
                 $('#accountName').text(GetAccountName());
-                
-                $('#patientHeading').text('Patient @ ' + address.substring(0, 7) + '...');
                 $('#createButton').attr('class', 'disabled');
                 $('#destroyButton').attr('class', '');
                 $('#manageConsentDirectivesDiv').attr('style', '');
@@ -176,11 +174,22 @@ function InitPatient() {
                         console.log('Unable to load Patient @ ' + address);
                     } else {
                         console.log('Loaded Patient @ ' + address);
-
                         window.Patient = instance;
-                        LoadDDLActors('LoadActor', 1);
-                        InitPermissionsHeaderDiv();
-                        LoadActor(Accounts.accounts[0].address)
+                        let promise = new Promise(function(resolve, reject) {
+                            instance.Name.call(function(error,name) {
+                                if (error) {
+                                    console.log("Error getting patient name.")
+                                } else {
+                                    resolve(name);
+                                }
+                            });
+                          });
+                        promise.then(function(name) {
+                            $('#patientHeading').text('Patient : ' + name);
+                            LoadDDLActors('LoadActor', 1);
+                            InitPermissionsHeaderDiv();
+                            LoadActor(Accounts.accounts[0].address)
+                        });
                     }
                 });
 
@@ -361,11 +370,7 @@ function SaveConsentDirective() {
         }
     });
 
-    var metadata = LoadContractMetadata('ConsentDirective.json');
-    let bytecode = metadata.bytecode;
-    let consentDirectiveContract = web3.eth.contract(metadata.abi);
-
-    Patient.SetConsentDirective(what, CurrentActorAddress, function(error, result) {
+    Patient.SetConsentDirective(CurrentActorAddress, what, function(error, result) {
         if (error) {
             console.error('Error updating consent directive');
         } else {
@@ -393,25 +398,36 @@ function ViewProfile() {
         } else {
             var patientMetadata = LoadContractMetadata('Patient.json');
             var patientContract = web3.eth.contract(patientMetadata.abi);
-            patientContract.at(patientContractAddress, function (error, patient) {
-                if (error) {
-                    console.log('Error loading patient contract from contract address.')
-                } else {
+            let patientPromise = new Promise (function(resolve, reject) { 
+                patientContract.at(patientContractAddress, function (error, patient) {
+                    if (error) {
+                        console.log('Error loading patient contract from contract address.')
+                    } else {
+                        resolve(patient);
+                    }
+                });
+            });
+
+            patientPromise.then(function(patient) {
+                let promise = new Promise (function (resolve, reject) {
                     patient.CheckConsentsTo.call(checkPermissionFor, function (error, allow) {
                         if (error) {
                             console.error('error while checking for profile view permission.');
                         } else {
-                            patient.CreateAuditLog(GetAccountAddress(), checkPermissionFor, allow, Date.now(), function(error, txHash) {
-                                if (error){
-                                    console.error('Error logging audit');
-                                } else {
-                                    console.log('Audit logged in ' + txHash);
-                                    alert ('allow'+ allow);
-                                }
-                            });
+                            resolve(allow);
                         }
                     });
-                }
+                });
+                promise.then(function(allow) {
+                    patient.CreateAuditLog(GetAccountAddress(), checkPermissionFor, allow, Date.now(), function(error, txHash) {
+                        if (error){
+                            console.error('Error logging audit');
+                        } else {
+                            console.log('Audit logged in ' + txHash);
+                            alert ('allow'+ allow);
+                        }
+                    });
+                })
             });
         }
     });
@@ -481,33 +497,35 @@ function displayAccessLogs(logs) {
     
 }
 
-async function FindFirstConsentDirectiveFor(pActor, f) {
-    var metadata = LoadContractMetadata('ConsentDirective.json');
-    let bytecode = metadata.bytecode;
-    let consentDirectiveContract = web3.eth.contract(metadata.abi);
-
+function FindFirstConsentDirectiveFor(pActor, f) {
     window.ConsentDirective = null;
 
     for (var i = 0; i < NoOfDirectives; i++) {
-        let cd = await Patient.GetConsentDirective.call(i, function(error, cd) {
+        Patient.GetConsentDirective.call(i, function(error, cd) {
             if (error) {
                 console.error('Error loading Consent Directive');
             } else {
-                return {who: cd[0], what: cd[1].c[0] };
+                cd = {who: cd[0], what: cd[1].c[0] };
+                if (pActor == cd.who) {
+                    window.ConsentDirective = cd;
+                    console.log('CD@' + window.ConsentDirective + ' for actor@' + pActor + ' found');
+                    f();
+                }
             }
         });
-
-        if (pActor == cd.who) {
-            window.ConsentDirective = cd;
-            console.log('CD@' + window.ConsentDirective + ' for actor@' + pActor + ' found');
-            f();
-        }
     }
 }
 
 
+function ShowForm() {
+    $("#actionButton").hide();
+    $("#getPatientDeails").show();
+}
+
 function CreatePatient() {
-    PatientFactory.MakePatient(function (error, result) {
+    let pName = $("input[name=PatientName]").val();
+    let pMcp = $("input[name=mcpNo]").val();
+    PatientFactory.MakePatient(pName, pMcp, function (error, result) {
         if (error) {
             console.error('MakePatient transaction failed');
         } else {

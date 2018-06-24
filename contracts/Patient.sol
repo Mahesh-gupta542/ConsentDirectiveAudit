@@ -2,11 +2,12 @@ pragma solidity ^0.4.4;
 pragma experimental ABIEncoderV2;
 
 import "./Category.sol";
-//import "./ConsentDirective.sol";
 
 contract Patient {
   
-  address public Owner;
+    address public Owner;
+    bytes32 public Name;
+    uint64 public Mcp;
 
     struct ConsentDirective {
         address who;
@@ -23,26 +24,24 @@ contract Patient {
     }
     AccessLog[] public Logs;
 
-  constructor (address owner) public {
-    Owner = owner;
-  }
+    constructor (address owner, bytes32 name, uint64 mcp) public {
+        Owner = owner;
+        Name = name;
+        Mcp = mcp;
+    }
 
-  function GetOwner() constant returns(address) {
-    return Owner;
-  }
+    function GetOwner() constant returns(address) {
+        return Owner;
+    }
 
-  function GetConsentDirectiveCount() constant returns(uint) {
-    return Directives.length;
-  }
+    function GetConsentDirectiveCount() constant public returns(uint) {
+        return Directives.length;
+    }
 
     function GetConsentDirective(uint i) view public returns(address, uint256, address) {
         ConsentDirective memory cd = Directives[i];
         return (cd.who, cd.what, cd.record);
     } 
-
-    function GetConsentDirectives() view public returns(ConsentDirective[]) {
-        return Directives;
-    }
 
     function SetConsentDirective(address who, uint256 what) external {
         bool exist = false;
