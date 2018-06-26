@@ -132,16 +132,35 @@
 
     <div class="physicianContent"  style="display:none;">
       View profile for the patients:
-      <div id="patientsDiv">
-        <div id="patientsHeaderDiv" class="row">
-          <div id="patientsSelectDiv" class="col-lg-1">
-          </div>
-          <div id="patientAccountDiv" class="col-lg-3">
+      <div style="display:flow-root;">
+        <div id="patientsDiv" style="display: table-caption; width: 300px; font-size: large;">
+          <div id="patientsHeaderDiv" class="row">
+            <div id="patientsSelectDiv" class="col-lg-1">
+            </div>
+            <div id="patientAccountDiv" class="col-lg-3">
+            </div>
           </div>
         </div>
+        <button id="viewButton" type="button" class="btn btn-default" OnClick="ViewProfile();" style="float: right;">View</button>
       </div>
-      <button id="viewButton" type="button" class="btn btn-default" OnClick="ViewProfile();" style="float: right;">View</button>
-    </div>
+      <div id="noAccessDiv" style="display:none">
+        <div class="alert alert-danger" role="alert">Access denied -- Patient does not gave consent to view Profile.</div>
+      </div>
+
+      <div id="patientProfileDiv" style="display:none">
+        <div class="well"><h2 style="text-align: -webkit-center;">Patient's Profile.</h2>
+          <p>
+            <label >Name: </label>
+            <span id="patientProfileName"></span>
+          </p>
+          <p>
+            <label >MCP: </label>
+            <span id="patientProfileMcp"></span>
+          </p>
+        </div>
+      </div>
+
+      </div>
 
     <div class="auditorContent" style="display:none;">
       View access logs for Patients profile:

@@ -6,7 +6,7 @@ import "./Category.sol";
 contract Patient {
   
     address public Owner;
-    bytes32 public Name;
+    string public Name;
     uint64 public Mcp;
 
     struct ConsentDirective {
@@ -24,7 +24,7 @@ contract Patient {
     }
     AccessLog[] public Logs;
 
-    constructor (address owner, bytes32 name, uint64 mcp) public {
+    constructor (address owner, string name, uint64 mcp) public {
         Owner = owner;
         Name = name;
         Mcp = mcp;
@@ -99,9 +99,9 @@ contract Patient {
     return false;
   }
 
-    function CheckConsentsTo(uint256 permission) view public returns (bool) {
+    function CheckConsentsTo(uint256 permission) view public returns (bool, string, uint64) {
         if (msg.sender == Owner) {
-            return true;
+            return (true, Name, Mcp);
         }
         for (uint i = 0; i < Directives.length; i++) {
 
@@ -111,10 +111,10 @@ contract Patient {
             uint256 dir_data = Directives[i].what;
             uint256 res_data = dir_data & permission;
             if (res_data == permission) {
-                return true;
+                return (true, Name, Mcp);
             }
         }
-        return false;
+        return (false, "####", 0);
     }
 
     function CreateAuditLog(address who, uint256 permission, bool flag, uint256 currTime) {

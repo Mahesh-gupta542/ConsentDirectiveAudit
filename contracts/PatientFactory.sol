@@ -1,4 +1,5 @@
 pragma solidity ^0.4.4;
+pragma experimental ABIEncoderV2;
 
 import "./Patient.sol";
 
@@ -9,10 +10,10 @@ contract PatientFactory {
 
     address[] patientAddress;
 
-  constructor () public {
-  }
+    constructor () public {
+    }
 
-    function MakePatient(bytes32 name, uint64 mcp) {
+    function MakePatient(string name, uint64 mcp) {
         if (address(mMap[msg.sender]) == 0) {
             mMap[msg.sender] = new Patient(msg.sender, name, mcp);
             patientAddress.push(msg.sender);
@@ -40,16 +41,16 @@ contract PatientFactory {
         return patientAddress;
     }
 
-    function SearchPatient(uint64 mcp) public returns (address, bytes32) {
+    function SearchPatient(uint64 mcp) public returns (address, string) {
         address patientInstance = address(0);
-        bytes32 patientName;
+        string memory patientName;
         for (uint i = 0; i < patientAddress.length; i++){
             if (mMap[patientAddress[i]].Mcp() == mcp){
                 patientInstance = patientAddress[i];
                 patientName = mMap[patientAddress[i]].Name();
             }
         }
-        return (patientInstance, patientAddress);
+        return (patientInstance, patientName);
     }
 
 }

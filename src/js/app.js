@@ -1,6 +1,8 @@
 /*
  * Main entry point (init)
  */
+var patientMetadata = LoadContractMetadata('Patient.json');
+var patientContract = web3.eth.contract(patientMetadata.abi);
 
 function Init() {
     // web3 object
@@ -61,9 +63,9 @@ function Init() {
         'accounts': [
             { 'address': '0x004862247223e9784fec421a0c6a3c2e28b0782a', 'name': 'Admin' },
             { 'address': null, 'name': 'P (Patient)' },
-            { 'address': '0x5c879555a7ed30062d01ff55e6f598a27624287d', 'name': 'R (Reception, MD)' },
-            { 'address': '0xac08c39735d583ea3e893821b79fc1c88d61e4e8', 'name': 'MD' },
-            { 'address': '0x4a45d3081cf0ecd45b23aee009be3576c46b29ef', 'name': 'N (Nurse)' },
+            { 'address': '0x5c879555a7ed30062d01ff55e6f598a27624287d', 'name': 'MD1' },
+            { 'address': '0xac08c39735d583ea3e893821b79fc1c88d61e4e8', 'name': 'MD2' },
+            { 'address': '0x4a45d3081cf0ecd45b23aee009be3576c46b29ef', 'name': 'MD3' },
             { 'address': '0x79304e3605e578f83c22d9054702391aa0e6fa2c', 'name': 'Auditor' }
         ]
     };
@@ -80,7 +82,7 @@ function Init() {
 
     if (!currAccnt || currAccnt.name == 'P (Patient)') {
         InitPatient();
-    } else if (currAccnt.name == 'MD' || currAccnt.name == 'R (Reception, MD)'){
+    } else if ( currAccnt.name.substring(0,2) == 'MD'){
         InitMD();
     } else if (currAccnt.name == 'Auditor') {
         InitAuditor();
@@ -146,7 +148,7 @@ function GetAccountAddress() {
  * Patient functions
  */
 function InitPatient() {
-    $('#appName').text( 'Pateint App');
+    $('#appName').text( 'Patient App');
     $('.patientContent').show();
 
     PatientFactory.GetPatient.call(function (error, address) {
@@ -167,8 +169,7 @@ function InitPatient() {
                 $('#destroyButton').attr('class', '');
                 $('#manageConsentDirectivesDiv').attr('style', '');
 
-                var patientMetadata = LoadContractMetadata('Patient.json');
-                var patientContract = web3.eth.contract(patientMetadata.abi);
+
                 patientContract.at(address, function (error, instance) {
                     if (error) {
                         console.log('Unable to load Patient @ ' + address);
@@ -201,6 +202,7 @@ function InitPatient() {
 function InitMD(){
     $('#appName').text( 'Physician App');
     $('.physicianContent').show();
+    var recrdCnt = 0;
 
     PatientFactory.GetPatientList.call(function (error, addresses) {
         if (error) {
@@ -208,15 +210,52 @@ function InitMD(){
         } else {
             if (addresses.length > 0) {
                 for (var i = 0; i < addresses.length; i++) {
-                    var account = 'Patient @' + addresses[i];
                     var newRow = $('#patientsHeaderDiv').clone();
-                    newRow.attr('id', 'patientListDiv');
+                    newRow.attr('id', 'patientListDiv-'+i);
                     newRow.css('display', 'inline-flex');
             
                     newRow.children('#patientsSelectDiv').html('<input type="radio" val="' + addresses[i] + '" name = "patientList">');
-                    newRow.children('#patientAccountDiv').text(account);
+                    //newRow.children('#patientAccountDiv').text(account);
                     newRow.children('#patientAccountDiv').css('width', '100%');
                     newRow.appendTo('#patientsDiv');
+
+                    let promise = new Promise(function(resolve, reject) {
+                        PatientFactory.GetPatientFromAddress(addresses[i], function(error, contractAddress){
+                            if (error) {
+                                console.error('Error getting paient contract address.');
+                            } else {
+                                resolve(contractAddress);
+                            }
+                        });
+                    });
+                    promise.then(function(contractAddress) { 
+                        
+                        let patientPromise = new Promise(function(resolve, reject){                        
+                            patientContract.at(contractAddress, function(error, instance) {
+                                if(error) {
+                                    console.error('Error loading Patient instance.');
+                                } else {
+                                    resolve(instance);
+                                }
+                            });
+                        });
+                        patientPromise.then(function(instance) {
+                            let promise = new Promise(function(resolve, reject) {
+                                instance.Name.call(function(error, name) {
+                                    if (error) {
+                                        console.error('Error getting patient\'s name.');
+                                    } else {
+                                        resolve(name);
+                                    }
+                                });
+                            });
+                            promise.then(function(name) {
+                                var account = 'Patient: ' + name;
+                                $('#patientsDiv').find('#patientListDiv-' + recrdCnt + ' #patientAccountDiv').text(account);
+                                recrdCnt++;
+                            });
+                        });
+                    });
                 }
             }
         }
@@ -261,20 +300,14 @@ function LoadDDLActors(funcName, index) {
 
     for (var i = 0; i < Accounts.accounts.length; i++) {
         var account = Accounts.accounts[i];
-
+        if (account.name == 'P (Patient)') continue;
         var newItem = $(templateId).clone();
 
         newItem.attr('style', '');
         newItem.appendTo(targetId);
 
         var link = newItem.children(':first');
-
-        if (GetAccountAddress() == account.address) {
-            newItem.attr('class', 'disabled');
-            link.text(account.name + '');
-        } else {
-            link.text(account.name);
-        }
+        link.text(account.name);
 
         console.log('2');
 
@@ -375,6 +408,9 @@ function SaveConsentDirective() {
             console.error('Error updating consent directive');
         } else {
             console.info('Consent Directive updated');
+            web3.eth.getTransaction(result , function(error, data) {
+                console.log(data);
+            })
         }
     });
 }
@@ -396,8 +432,6 @@ function ViewProfile() {
         if (error) {
             console.error('Error loading contract address from patient address.')
         } else {
-            var patientMetadata = LoadContractMetadata('Patient.json');
-            var patientContract = web3.eth.contract(patientMetadata.abi);
             let patientPromise = new Promise (function(resolve, reject) { 
                 patientContract.at(patientContractAddress, function (error, patient) {
                     if (error) {
@@ -410,21 +444,29 @@ function ViewProfile() {
 
             patientPromise.then(function(patient) {
                 let promise = new Promise (function (resolve, reject) {
-                    patient.CheckConsentsTo.call(checkPermissionFor, function (error, allow) {
+                    patient.CheckConsentsTo.call(checkPermissionFor, function (error, data) {
                         if (error) {
                             console.error('error while checking for profile view permission.');
                         } else {
-                            resolve(allow);
+                            resolve({allow:data[0],patName: data[1], patMcp: data[2].c[0]});
                         }
                     });
                 });
-                promise.then(function(allow) {
-                    patient.CreateAuditLog(GetAccountAddress(), checkPermissionFor, allow, Date.now(), function(error, txHash) {
+                promise.then(function(data) {
+                    patient.CreateAuditLog(GetAccountAddress(), checkPermissionFor, data.allow, Date.now(), function(error, txHash) {
                         if (error){
                             console.error('Error logging audit');
                         } else {
                             console.log('Audit logged in ' + txHash);
-                            alert ('allow'+ allow);
+                            if (data.allow) {
+                                $('#noAccessDiv').hide();
+                                $('#patientProfileDiv').show();
+                                $('#patientProfileDiv #patientProfileName').text(data.patName);
+                                $('#patientProfileDiv #patientProfileMcp').text(data.patMcp);
+                            } else {
+                                $('#noAccessDiv').show();
+                                $('#patientProfileDiv').hide();
+                            }                            
                         }
                     });
                 })
@@ -450,8 +492,6 @@ async function ViewAccessLogs() {
         if (error) {
             console.log('Error loading contract address from patient address.')
         } else {
-            var patientMetadata = LoadContractMetadata('Patient.json');
-            var patientContract = web3.eth.contract(patientMetadata.abi);
             patientContract.at(patientContractAddress, function (error, patient) {
                 if (error) {
                     console.log('Error loading patient contract from contract address.')
@@ -648,8 +688,6 @@ function AnswerQuestion() {
                 if (error) {
                     $('#answerSpan').text('No');
                 } else {
-                    var patientMetadata = LoadContractMetadata('Patient.json');
-                    var patientContract = web3.eth.contract(patientMetadata.abi);
                     patientContract.at(patientAddress, function (error, patient) {
                         if (error) {
                             $('#answerSpan').text('No');
