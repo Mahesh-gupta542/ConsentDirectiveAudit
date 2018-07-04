@@ -15,6 +15,8 @@
   <!-- build:css styles/main.css -->
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
   <!-- endbuild -->
 
 </head>
@@ -133,11 +135,11 @@
     <div class="physicianContent"  style="display:none;">
       View profile for the patients:
       <div style="display:flow-root;">
-        <div id="patientsDiv" style="display: table-caption; width: 300px; font-size: large;">
+        <div id="patientsDiv" ><!--style="display: table-caption; width: 300px; font-size: large;"-->
           <div id="patientsHeaderDiv" class="row">
-            <div id="patientsSelectDiv" class="col-lg-1">
+            <div id="patientsSelectDiv" class="col-lg-2" style="padding-top: 10px;">
             </div>
-            <div id="patientAccountDiv" class="col-lg-3">
+            <div id="patientAccountDiv" class="col-lg-10" style="font-size: large; padding-top: 10px;">
             </div>
           </div>
         </div>
@@ -163,18 +165,53 @@
       </div>
 
     <div class="auditorContent" style="display:none;">
-      View access logs for Patients profile:
-      Search by 
-      <div id="patientsLogDiv">
-        <div id="patientsLogHeaderDiv" class="row">
-          <div id="patientsLogSelectDiv" class="col-lg-1">
+      <p style="font-size: large;color: #337ab7">View access logs for Patients profile:</p>
+      Select Date Range: <input name="dateRange" id="dateRange">
+      <div style="display:flow-root;"> 
+      <div id="patientsLogDiv" class="well">
+        <div id="patientsLogHeaderDiv" class="row" style="font-weight: bold">
+          <div id="auditPrescrptn" class="col-lg-1">Script#
+            </div>
+          <div id="auditMd" class="col-lg-2">MD Actor
           </div>
-          <div id="patientLogAccountDiv" class="col-lg-3">
+          <div id="auditPatnt" class="col-lg-3">Patient Name(MCP)
+          </div>
+          <div id="auditDate" class="col-lg-2">Fill Date
+          </div>
+          <div id="scriptDesc" class="col-lg-2">Script Type
+          </div>
+          <div id="consentRequests" class="col-lg-1">Consent Requests
+          </div>
+          <div id="auditSelect" class="col-lg-1">Select
           </div>
         </div>
       </div>
-      <input type="text" id="datepicker">
       <button id="viewButton" type="button" class="btn btn-default" OnClick="ViewAccessLogs();" style="float: right;">View Access Logs</button>
+      </div>
+      <div id="noAuditDiv" style="display:none">
+        <div class="alert alert-danger" role="alert">No Audit.</div>
+      </div>
+
+      <div id="auditLogDiv" style="display:none">
+        <div class="well"><h2 style="text-align: -webkit-center;">Audit Trails.</h2>
+          <p>
+            <label >Patient Name: </label>
+            <span id="patientProfileName"></span>
+          </p>
+          <p>
+            <label > Consent Requested By: </label>
+            <span id="profileAccessedBy"></span>
+          </p>
+          <p>
+            <label > Requested At: </label>
+            <span id="profileRequestedAt"></span>
+          </p>
+          <p>
+            <label > Consent Granted: </label>
+            <span id="consentGranted"></span>
+          </p>
+        </div>
+      </div>
     </div>
 
 
@@ -216,6 +253,9 @@
   <!-- build:js scripts/main.js -->
   <script src="js/app.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  
   <!-- endbuild -->
 
   <script>

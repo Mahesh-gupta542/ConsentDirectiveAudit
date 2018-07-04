@@ -157,4 +157,39 @@ contract Patient {
         return (log.AccessedBy, log.PermissionRequested, log.AccessedAt, log.AccessGranted);
     }
 
+    function SearchAccessLog(address accessedBy, uint accessedOn) public view returns(address, uint, uint, bool, string) {
+        bool consentExist = false;
+        for (uint i1 = 0; i1 < Directives.length; i1++) {
+            if (Directives[i1].who == accessedBy) {
+                consentExist = true;
+                break;
+            }
+        }
+        if (consentExist) {
+            for (uint i2 = 0; i2 < Logs.length; i2++) {
+                if (Logs[i2].AccessedBy == accessedBy && Logs[i2].AccessedAt < accessedOn) {
+                    AccessLog storage log = Logs[i2];
+                    return (log.AccessedBy, log.PermissionRequested, log.AccessedAt, log.AccessGranted, Name);
+                }
+            }
+            return (address(0), 0, 0, true, "xxx");
+        } else {
+            return (address(0), 0, 0, false, "xxx");
+        }
+
+    }
+
+    function  AuditLogCount(address mdAdress,  uint dateBefore, uint dateAfter) public view returns(uint, uint[]) {
+        uint count = 0;
+        uint[] memory indexes = new uint[](Logs.length);
+        for (uint i = 0; i < Logs.length; i++) {
+            if (Logs[i].AccessedBy == mdAdress && Logs[i].AccessedAt < dateBefore && Logs[i].AccessedAt > dateAfter) {
+                indexes[count] = i;
+                count++;
+            }
+
+        }
+        return (count,indexes);
+    }
+
 }
