@@ -16,13 +16,13 @@ contract Patient {
     }
     ConsentDirective[] public Directives;
 
-    struct AccessLog {
+    struct ProfileAccessRecord {
         address AccessedBy;
         uint256 PermissionRequested;
-        uint256 AccessedAt;
+        uint256 AccessedTime;
         bool AccessGranted;
     }
-    AccessLog[] public Logs;
+    ProfileAccessRecord[] public AuditLogs;
 
     constructor (address owner, string name, uint64 mcp) public {
         Owner = owner;
@@ -117,8 +117,8 @@ contract Patient {
         return (false, "####", 0);
     }
 
-    function CreateAuditLog(address who, uint256 permission, bool flag, uint256 currTime) {
-        Logs.push(AccessLog(who, permission, currTime, flag));
+    function CreateAuditLog(address who, uint256 permission, bool accessGranted, uint256 currTime) {
+        AuditLogs.push(ProfileAccessRecord(who, permission, currTime, accessGranted));
     }
 
   // Has Patient delegated authority to WHO to consent to WHAT on their behalf?
@@ -149,12 +149,12 @@ contract Patient {
     }
 
     function GetAccessLogLength() public view returns(uint){
-        return Logs.length;
+        return AuditLogs.length;
     }
 
     function GetAccessLogAt(uint idx) public view returns(address, uint, uint, bool){
-        AccessLog storage log = Logs[idx];
-        return (log.AccessedBy, log.PermissionRequested, log.AccessedAt, log.AccessGranted);
+        ProfileAccessRecord storage log = AuditLogs[idx];
+        return (log.AccessedBy, log.PermissionRequested, log.AccessedTime, log.AccessGranted);
     }
 
     function SearchAccessLog(address accessedBy, uint accessedOn) public view returns(address, uint, uint, bool, string) {
@@ -166,10 +166,10 @@ contract Patient {
             }
         }
         if (consentExist) {
-            for (uint i2 = 0; i2 < Logs.length; i2++) {
-                if (Logs[i2].AccessedBy == accessedBy && Logs[i2].AccessedAt < accessedOn) {
-                    AccessLog storage log = Logs[i2];
-                    return (log.AccessedBy, log.PermissionRequested, log.AccessedAt, log.AccessGranted, Name);
+            for (uint i2 = 0; i2 < AuditLogs.length; i2++) {
+                if (AuditLogs[i2].AccessedBy == accessedBy && AuditLogs[i2].AccessedTime < accessedOn) {
+                    ProfileAccessRecord storage log = AuditLogs[i2];
+                    return (log.AccessedBy, log.PermissionRequested, log.AccessedTime, log.AccessGranted, Name);
                 }
             }
             return (address(0), 0, 0, true, "xxx");
@@ -179,11 +179,11 @@ contract Patient {
 
     }
 
-    function  AuditLogCount(address mdAdress,  uint dateBefore, uint dateAfter) public view returns(uint, uint[]) {
+    function  AuditLogCount(address mdAdress,  uint scriptFillDate, uint prevFillDate) public view returns(uint, uint[]) {
         uint count = 0;
-        uint[] memory indexes = new uint[](Logs.length);
-        for (uint i = 0; i < Logs.length; i++) {
-            if (Logs[i].AccessedBy == mdAdress && Logs[i].AccessedAt < dateBefore && Logs[i].AccessedAt > dateAfter) {
+        uint[] memory indexes = new uint[](AuditLogs.length);
+        for (uint i = 0; i < AuditLogs.length; i++) {
+            if (AuditLogs[i].AccessedBy == mdAdress && AuditLogs[i].AccessedTime < scriptFillDate && AuditLogs[i].AccessedTime > prevFillDate) {
                 indexes[count] = i;
                 count++;
             }
