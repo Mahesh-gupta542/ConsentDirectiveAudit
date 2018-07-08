@@ -34,27 +34,41 @@ contract Patient {
         return Owner;
     }
 
-    function GetConsentDirectiveCount() constant public returns(uint) {
-        return Directives.length;
+    function GetConsentDirectiveCount(address who) constant public returns(uint) {
+        uint count = 0;
+        for (uint i = 0; i < Directives.length; i++){
+            if (Directives[i].who == who) {
+                count++; 
+            }
+        }
+        return count;
     }
 
-    function GetConsentDirective(uint i) view public returns(address, uint256, address) {
-        ConsentDirective memory cd = Directives[i];
-        return (cd.who, cd.what, cd.record);
+    function GetConsentDirective(address who, uint count) view public returns(uint256[]) {
+        uint[] memory permissions = new uint[](count);
+        var idx = 0;
+        for (uint i = 0; i < Directives.length; i++){
+            if (Directives[i].who == who) {
+                permissions[idx] = Directives[i].what;
+                idx++;
+            }
+        }
+        return permissions;
     } 
 
-    function SetConsentDirective(address who, uint256 what) external {
-        bool exist = false;
-        ConsentDirective memory cd = ConsentDirective(who, what, address(0));
-        if (this.HasDelegatedAuthority(msg.sender, cd)) {
-            for (uint i = 0; i < Directives.length; i++){
-                if (Directives[i].who == cd.who){
-                    Directives[i].what = cd.what;
-                    exist = true;
-                    break;
+    function SetConsentDirective(address who, uint256[] what) external {
+        for (uint i = 0; i < Directives.length; i++){
+            if (Directives[i].who == who){
+                for (uint temp = i; temp<Directives.length-1; temp++){
+                    Directives[temp] = Directives[temp+1];
                 }
+                Directives.length--;
             }
-            if (!exist){
+        }
+
+        for (uint i1 = 0; i1 < what.length; i1++) {
+            ConsentDirective memory cd = ConsentDirective(who, what[i1], address(0));
+            if (this.HasDelegatedAuthority(msg.sender, cd)) {
                 Directives.push(cd);
             }
         }
@@ -105,12 +119,7 @@ contract Patient {
         }
         for (uint i = 0; i < Directives.length; i++) {
 
-            if (msg.sender != Directives[i].who) {
-                continue;
-            }            
-            uint256 dir_data = Directives[i].what;
-            uint256 res_data = dir_data & permission;
-            if (res_data == permission) {
+            if (msg.sender == Directives[i].who && Directives[i].what == permission) {
                 return (true, Name, Mcp);
             }
         }
@@ -148,35 +157,9 @@ contract Patient {
         return false;
     }
 
-    function GetAccessLogLength() public view returns(uint){
-        return AuditLogs.length;
-    }
-
-    function GetAccessLogAt(uint idx) public view returns(address, uint, uint, bool){
+    function GetAccessLogAt(uint idx) public view returns(address, uint, uint, bool, string){
         ProfileAccessRecord storage log = AuditLogs[idx];
-        return (log.AccessedBy, log.PermissionRequested, log.AccessedTime, log.AccessGranted);
-    }
-
-    function SearchAccessLog(address accessedBy, uint accessedOn) public view returns(address, uint, uint, bool, string) {
-        bool consentExist = false;
-        for (uint i1 = 0; i1 < Directives.length; i1++) {
-            if (Directives[i1].who == accessedBy) {
-                consentExist = true;
-                break;
-            }
-        }
-        if (consentExist) {
-            for (uint i2 = 0; i2 < AuditLogs.length; i2++) {
-                if (AuditLogs[i2].AccessedBy == accessedBy && AuditLogs[i2].AccessedTime < accessedOn) {
-                    ProfileAccessRecord storage log = AuditLogs[i2];
-                    return (log.AccessedBy, log.PermissionRequested, log.AccessedTime, log.AccessGranted, Name);
-                }
-            }
-            return (address(0), 0, 0, true, "xxx");
-        } else {
-            return (address(0), 0, 0, false, "xxx");
-        }
-
+        return (log.AccessedBy, log.PermissionRequested, log.AccessedTime, log.AccessGranted, Name);
     }
 
     function  AuditLogCount(address mdAdress,  uint scriptFillDate, uint prevFillDate) public view returns(uint, uint[]) {
