@@ -46,7 +46,7 @@ contract Patient {
 
     function GetConsentDirective(address who, uint count) view public returns(uint256[]) {
         uint[] memory permissions = new uint[](count);
-        var idx = 0;
+        uint8 idx = 0;
         for (uint i = 0; i < Directives.length; i++){
             if (Directives[i].who == who) {
                 permissions[idx] = Directives[i].what;

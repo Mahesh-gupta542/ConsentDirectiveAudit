@@ -79,16 +79,6 @@ function Init() {
     // Consent Data
     InitConsentData();
 
-    var currAccnt = Accounts.accounts.find(function (accnt) { return accnt.address == GetAccountAddress()});
-
-    if (!currAccnt || currAccnt.name == 'P (Patient)') {
-        InitPatient();
-    } else if ( currAccnt.name.substring(0,2) == 'MD'){
-        InitMD();
-    } else if (currAccnt.name == 'Auditor') {
-        InitAuditor();
-    }
-
 
 }
 
@@ -144,6 +134,19 @@ function GetAccountAddress() {
     } */
     return web3.eth.accounts[0];
 }
+
+function InitActor() {
+    var currAccnt = Accounts.accounts.find(function (accnt) { return accnt.address == GetAccountAddress()});
+
+    if (!currAccnt || currAccnt.name == 'P (Patient)') {
+        InitPatient();
+    } else if ( currAccnt.name.substring(0,2) == 'MD'){
+        InitMD();
+    } else if (currAccnt.name == 'Auditor') {
+        InitAuditor();
+    }
+}
+
 
 /*
  * Patient functions
@@ -290,7 +293,7 @@ function LoadDDLActors(funcName, index) {
 
     for (var i = 0; i < Accounts.accounts.length; i++) {
         var account = Accounts.accounts[i];
-        if (account.name == 'P (Patient)') continue;
+        //if (account.name == 'P (Patient)') continue;
         var newItem = $(templateId).clone();
 
         newItem.attr('style', '');
@@ -303,48 +306,6 @@ function LoadDDLActors(funcName, index) {
 
         link.attr('OnClick', funcName + '("' + account.address + '");');
     }
-}
-
-
-function LoadPatients(funcName, index) {
-
-    var templateId = '#actorTemplateDdi';
-    var targetId = '#actorsDdm';
-
-    if (index == 2) {
-        templateId += '2';
-        targetId += '2';
-    }
-
-    PatientFactory.GetPatientList.call(function (error, addresses) {
-        if (error) {
-            alert('GetPatientList call failed' + error.message);
-        } else {
-            if (addresses.length > 0) {
-                for (var i = 0; i < addresses.length; i++) {
-                    var account = addresses[i];
-            
-                    var newItem = $(templateId).clone();
-            
-                    newItem.attr('style', '');
-                    newItem.appendTo(targetId);
-            
-                    var link = newItem.children(':first');
-            
-                    if (GetAccountAddress() == account.address) {
-                        newItem.attr('class', 'disabled');
-                        link.text(account.name + '');
-                    } else {
-                        link.text('Patient @ ' + account.substring(0,7));
-                    }
-            
-                    console.log('2');
-            
-                    link.attr('OnClick', funcName + '("' + account + '");');
-                }
-            }
-        }
-    });
 }
 
 
@@ -618,7 +579,10 @@ function GetPermissionName(value) {
 }
 
 function InitExternal() {
-    LoadPatients('LoadActor1', 1);
+    if (!GetAccountName()) {
+        Accounts.accounts.find(function (accnt) { return accnt.name == 'P (Patient)'}).address = GetAccountAddress();
+    }
+    LoadDDLActors('LoadActor1', 1);
     LoadActor1(Accounts.accounts[1].address); // Patient
 
     LoadDDLActors('LoadActor2', 2);
